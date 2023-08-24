@@ -70,6 +70,7 @@ class TestMemoize(unittest.TestCase):
 
             @memoize
             def a_property(self):
+                """property method"""
                 return self.a_method()
         with patch.object(TestClass, "a_method",
                           return_value=lambda: 42,) as memo_func:
