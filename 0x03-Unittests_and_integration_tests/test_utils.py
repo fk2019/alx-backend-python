@@ -3,13 +3,14 @@
 """
 import unittest
 from parameterized import parameterized
+from unittest.mock import patch
 from typing import (
     Dict,
     Mapping,
     Sequence,
     Union,
 )
-from utils import access_nested_map
+from utils import access_nested_map, get_json
 
 
 class TestAccessNestedMap(unittest.TestCase):
@@ -39,3 +40,16 @@ class TestAccessNestedMap(unittest.TestCase):
         """Tests access_nested_map's output for exception"""
         with self.assertRaises(exception):
             access_nested_map(nested_map, path)
+
+
+class TestGetJson(unittest.TestCase):
+    """Test case for get_json method"""
+    @parameterized.expand([
+        ("http://example.com", {"payload": True}),
+        ("http://holberton.io", {"payload": False})])
+    def test_get_json(self, test_url: str, test_payload: Dict) -> None:
+        """Test method for get_json method"""
+        with patch("requests.get") as mock_get:
+            mock_response = mock_get.return_value
+            mock_response.json.return_value = test_payload
+            self.assertEqual(get_json(test_url), test_payload)
