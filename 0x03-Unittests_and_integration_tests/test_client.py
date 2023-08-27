@@ -26,7 +26,7 @@ class TestGithubOrgClient(unittest.TestCase):
     @parameterized.expand([
         ('google', {'repos_url': 'https://api/github.com/orgs/google/repos'})
     ])
-    def test_public_repos_url(self, org, expected):
+    def test_public_repos(self, org, expected):
         """Test public_repos_url property"""
         with patch('client.GithubOrgClient._public_repos_url') as mock_repo:
             mock_repo.return_value = expected
