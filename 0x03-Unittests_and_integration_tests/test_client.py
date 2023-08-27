@@ -24,7 +24,7 @@ class TestGithubOrgClient(unittest.TestCase):
             org=org))
 
     @parameterized.expand([
-        ('google', {'repos_url': 'https://api/github.com/orgs/google/repos'})
+        ('google', {'repos_url': 'https://api.github.com/orgs/google/repos'})
     ])
     def test_public_repos(self, org, expected):
         """Test public_repos_url property"""
