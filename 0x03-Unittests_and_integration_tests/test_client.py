@@ -93,3 +93,10 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         self.assertEqual(client.public_repos(), self.expected_repos)
         self.assertEqual(client.public_repos("VAGUELICENSE"), [])
         self.mock.assert_called()
+
+    def test_public_repos_with_license(self):
+        """Integration test for public.repos method with with the argument
+        license="apache-2.0" """
+        client = GithubOrgClient("google")
+        self.assertEqual(client.public_repos("apache-2.0"), self.apache2_repos)
+        self.mock.assert_called()
