@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import unittest
-from parameterized import parameterized
+from fixtures import TEST_PAYLOAD
+from parameterized import parameterized, parameterized_class
 from unittest.mock import patch, MagicMock, PropertyMock
 from typing import Dict
 from client import GithubOrgClient
@@ -61,3 +62,34 @@ class TestGithubOrgClient(unittest.TestCase):
         """Test the has_license method"""
         res = GithubOrgClient.has_license(repo, license_key)
         self.assertEqual(res, expected)
+
+
+@parameterized_class(
+    ('org_payload', 'repos_payload', 'expected_repos', 'apache2_repos'),
+    TEST_PAYLOAD
+)
+class TestIntegrationGithubOrgClient(unittest.TestCase):
+    """ Integration test for client and only mock code that
+    sends external requests. """
+    @classmethod
+    def setUpClass(cls):
+        """the setup class """
+        conf = {'return_value.json.side_effect':
+                [cls.org_payload, cls.repos_payload,
+                 cls.org_payload, cls.repos_payload]}
+        cls.get_patcher = patch('requests.get', **conf)
+        cls.mock = cls.get_patcher.start()
+
+    @classmethod
+    def tearDownClass(cls):
+        """the teardown method """
+        cls.get_patcher.stop()
+
+    def test_public_repos(self):
+        """test the public_repos method"""
+        client = GithubOrgClient("google")
+        self.assertEqual(client.org, self.org_payload)
+        self.assertEqual(client.repos_payload, self.repos_payload)
+        self.assertEqual(client.public_repos(), self.expected_repos)
+        self.assertEqual(client.public_repos("VAGUELICENSE"), [])
+        self.mock.assert_called()
