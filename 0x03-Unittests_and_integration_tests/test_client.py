@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import unittest
 from parameterized import parameterized
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, PropertyMock
 from typing import Dict
 from client import GithubOrgClient
 
@@ -33,3 +33,20 @@ class TestGithubOrgClient(unittest.TestCase):
             client = GithubOrgClient(org)
             res = client._public_repos_url()
             self.assertEqual(res, expected)
+
+    @parameterized.expand([
+        ('google', ['truth', 'autoparse'])
+    ])
+    @patch('client.get_json')
+    def test_public_repos(self, org: str, expected: list,
+                          mock_get: MagicMock) -> None:
+        """Test public repos"""
+        mock_get.return_value = [{'name': 'truth'}, {'name': 'autoparse'}]
+        with patch('client.GithubOrgClient._public_repos_url',
+                   new_callable=PropertyMock) as mock_url:
+            mock_url.return_value = 'https://api.github.com/orgs/google/repos'
+            client = GithubOrgClient(org)
+            res = client.public_repos()
+            self.assertEqual(res, expected)
+            mock_url.assert_called_once()
+            mock_get.assert_called_once()
